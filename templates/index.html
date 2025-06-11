@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Mon coffre{% endblock %}
+
+{% block content %}
+<h1>Mes mots de passe</h1>
+
+<form action="/add" method="post" class="add-form">
+    <input type="text" name="label" placeholder="Nom" required>
+    <input type="text" name="username" placeholder="Identifiant" required>
+    <input type="text" name="password" placeholder="Mot de passe" required>
+    <select name="category">
+        <option value="">Catégorie</option>
+        <option value="Travail">Travail</option>
+        <option value="Personnel">Personnel</option>
+    </select>
+    <button type="submit">Ajouter</button>
+</form>
+
+<div class="generate-box">
+    <button onclick="generatePassword()">Générer un mot de passe</button>
+    <p id="generated"></p>
+</div>
+
+<hr>
+
+<input type="text" id="search" placeholder="Filtrer par nom ou catégorie...">
+
+<div id="password-list">
+    {% for p in passwords %}
+    <div class="entry" data-label="{{ p.label | lower }}" data-category="{{ p.category | lower }}">
+        <strong>{{ p.label }}</strong> ({{ p.category }})<br>
+        Identifiant : {{ p.username }}<br>
+        <button onclick="reveal({{ p.id }})">Afficher</button>
+        <button onclick="copyPassword({{ p.id }})">Copier</button>
+        <button onclick="share({{ p.id }})">Partager</button>
+        <a href="/delete/{{ p.id }}">Supprimer</a>
+        <p id="pw-{{ p.id }}" data-visible="false"></p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script>
+    $('#search').on('input', function() {
+        const term = $(this).val().toLowerCase();
+        $('.entry').each(function() {
+            const label = $(this).data('label');
+            const cat = $(this).data('category');
+            $(this).toggle(label.includes(term) || cat.includes(term));
+        });
+    });
+</script>
+{% endblock %}
